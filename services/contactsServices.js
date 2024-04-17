@@ -1,55 +1,35 @@
-import { nanoid } from "nanoid";
-import { promises } from "fs";
-
-const contactsPath = "./db/contacts.json";
+import { Contact } from "../schemas/contactsSchemas.js";
 
 export async function listContacts() {
-  const data = await promises.readFile(contactsPath);
-  return JSON.parse(data);
+  const data = await Contact.find();
+  return data;
 }
 
 export async function getContactById(contactId) {
-  const contacts = await listContacts();
-  const result = contacts.find((contact) => contact.id === contactId);
+  const data = await Contact.findOne({ _id: contactId });
 
-  return result || null;
+  return data || null;
 }
 
 export async function removeContact(contactId) {
-  const contacts = await listContacts();
-  let contact = null;
+  const data = await Contact.findOneAndDelete({ _id: contactId });
 
-  for (let i = 0; i < contacts.length; i++) {
-    if (contacts[i].id === contactId) {
-      contact = contacts.splice(i, 1);
-      await promises.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    }
-  }
-
-  if (contact) {
-    return contact[0];
-  }
-  return null;
+  return data || null;
 }
 
-export async function addContact({ name, email, phone }) {
-  const contacts = await listContacts();
-  const contact = { id: nanoid(), name, email, phone };
+export async function addContact({ name, email, phone, favorite }) {
+  const contact = { name, email, phone };
 
-  contacts.push(contact);
+  if (typeof favorite === "boolean" || favorite) {
+    contact.favorite = favorite;
+  }
 
-  await promises.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-  return contact;
+  const data = Contact.create(contact);
+  return data;
 }
 
-export async function renovationContact(id, {name, email, phone}) {
-  const contacts = await listContacts();
-  const contact = contacts.find(contact => contact.id === id);
-
-  if (!contact) {
-    return undefined
-  }
+export async function renovationContact(id, { name, email, phone, favorite }) {
+  const contact = {};
 
   if (name) {
     contact.name = name;
@@ -60,9 +40,30 @@ export async function renovationContact(id, {name, email, phone}) {
   if (phone) {
     contact.phone = phone;
   }
-  const filterContacts = contacts.filter(contact => contact.id !== id);
-  filterContacts.push(contact);
-  await promises.writeFile(contactsPath, JSON.stringify(filterContacts, null, 2));
 
-  return contact;
+  if (typeof favorite === 'boolean' || favorite) {
+    contact.favorite = favorite;
+  }
+
+  if (!contact) {
+    return undefined;
+  }
+
+  const data = await Contact.findOneAndUpdate({ _id: id }, contact, {
+    new: true,
+    versionKey: false,
+  });
+
+  return data;
+}
+
+export async function renovationStatusContact(id, { favorite }) {
+  
+
+    const data = await Contact.findOneAndUpdate({ _id: id }, {favorite}, {
+      new: true,
+      versionKey: false,
+    });
+
+    return data;
 }

@@ -3,9 +3,13 @@ import { getContactById } from "../services/contactsServices.js";
 import { removeContact } from "../services/contactsServices.js";
 import { addContact } from "../services/contactsServices.js";
 import { renovationContact } from "../services/contactsServices.js";
+import { renovationStatusContact } from "../services/contactsServices.js";
+
 import HttpError from "../helpers/HttpError.js";
+
 import { createContactSchema } from "../schemas/contactsSchemas.js";
 import { updateContactSchema } from "../schemas/contactsSchemas.js";
+import { updateStatusContactSchema } from "../schemas/contactsSchemas.js";
 
 export const getAllContacts = async (__, res, next) => {
   try {
@@ -74,6 +78,27 @@ export const updateContact = async (req, res, next) => {
     }
 
     res.status(201).json(contact);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateStatusContact = async (req, res, next) => {
+  try {
+     const { id } = req.params;
+    const { error } = updateStatusContactSchema.validate(req.body);
+
+    if (error) {
+      throw HttpError(400, error.message);
+    }
+
+    const data = await renovationStatusContact(id, req.body);
+
+    if (!data) {
+      throw HttpError(404);
+    }
+
+    res.status(200).json(data);
   } catch (error) {
     next(error);
   }
