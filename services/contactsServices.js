@@ -5,16 +5,14 @@ export async function listContacts() {
   return data;
 }
 
-export async function getContactById(contactId) {
-  const data = await Contact.findOne({ _id: contactId });
-
-  return data || null;
+export function getContactById(contactId) {
+  return Contact.findOne({ _id: contactId });
 }
 
 export async function removeContact(contactId) {
   const data = await Contact.findOneAndDelete({ _id: contactId });
 
-  return data || null;
+  return data;
 }
 
 export async function addContact({ name, email, phone, favorite }) {
@@ -24,7 +22,7 @@ export async function addContact({ name, email, phone, favorite }) {
     contact.favorite = favorite;
   }
 
-  const data = Contact.create(contact);
+  const data = Contact.create(contact, { versionKey: false });
   return data;
 }
 
@@ -41,7 +39,7 @@ export async function renovationContact(id, { name, email, phone, favorite }) {
     contact.phone = phone;
   }
 
-  if (typeof favorite === 'boolean' || favorite) {
+  if (typeof favorite === "boolean" || favorite) {
     contact.favorite = favorite;
   }
 
@@ -58,12 +56,14 @@ export async function renovationContact(id, { name, email, phone, favorite }) {
 }
 
 export async function renovationStatusContact(id, { favorite }) {
-  
-
-    const data = await Contact.findOneAndUpdate({ _id: id }, {favorite}, {
+  const data = await Contact.findOneAndUpdate(
+    { _id: id },
+    { favorite },
+    {
       new: true,
       versionKey: false,
-    });
+    }
+  );
 
-    return data;
+  return data;
 }

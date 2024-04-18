@@ -5,7 +5,7 @@ import cors from "cors";
 import { mongoose } from "mongoose";
 import { config } from "dotenv";
 
-config()
+config();
 
 mongoose.promise = global.promise;
 
@@ -18,11 +18,11 @@ app.use(morgan("tiny"));
 
 app.use("/api/contacts", contactsRouter);
 
-app.use((_, res) => {
+app.use((_, res, __) => {
   res.status(404).json({
     status: "error",
     code: 404,
-    message: "Use api on routes: /api/tasks",
+    message: "Use api on routes: /api/contacts",
     data: "Not found",
   });
 });
@@ -42,11 +42,11 @@ const uriDb = process.env.DB_HOST;
 
 const connection = mongoose.connect(uriDb);
 connection
-.then(() => {
-app.listen(PORT, () => {
-console.log("Database connection successful");
-});
-})
-.catch(err =>
-console.log(`Server not connection. Error message: ${err.message}`),
-);
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log("Database connection successful");
+    });
+  })
+  .catch((err) =>
+    console.log(`Server not connection. Error message: ${err.message}`)
+  );
