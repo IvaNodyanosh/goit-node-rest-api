@@ -20,20 +20,14 @@ app.use("/api/contacts", contactsRouter);
 
 app.use((_, res, __) => {
   res.status(404).json({
-    status: "error",
-    code: 404,
     message: "Use api on routes: /api/contacts",
-    data: "Not found",
   });
 });
 
 app.use((err, __, res, ___) => {
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({
-    status: "fail",
-    code: 500,
-    message: message,
-    data: "Internal Server Error",
+    message,
   });
 });
 

@@ -15,14 +15,9 @@ export async function removeContact(contactId) {
   return data;
 }
 
-export async function addContact({ name, email, phone, favorite }) {
-  const contact = { name, email, phone };
+export async function addContact(contact) {
 
-  if (typeof favorite === "boolean" || favorite) {
-    contact.favorite = favorite;
-  }
-
-  const data = Contact.create(contact, { versionKey: false });
+  const data = Contact.create(contact);
   return data;
 }
 
