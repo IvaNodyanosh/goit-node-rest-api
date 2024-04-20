@@ -1,4 +1,5 @@
 import express from "express";
+import { objectIdValidator } from "../helpers/objectIdValidator.js";
 import {
   getAllContacts,
   getOneContact,
@@ -12,14 +13,14 @@ const contactsRouter = express.Router();
 
 contactsRouter.get("/", getAllContacts);
 
-contactsRouter.get("/:id", getOneContact);
+contactsRouter.get("/:id", objectIdValidator, getOneContact);
 
-contactsRouter.delete("/:id", deleteContact);
+contactsRouter.delete("/:id", objectIdValidator, deleteContact);
 
 contactsRouter.post("/", createContact);
 
-contactsRouter.put("/:id", updateContact);
+contactsRouter.put("/:id", objectIdValidator, updateContact);
 
-contactsRouter.patch("/:id/favorite", updateStatusContact);
+contactsRouter.patch("/:id/favorite", objectIdValidator, updateStatusContact);
 
 export default contactsRouter;

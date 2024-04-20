@@ -10,7 +10,6 @@ import HttpError from "../helpers/HttpError.js";
 import { createContactSchema } from "../schemas/contactsSchemas.js";
 import { updateContactSchema } from "../schemas/contactsSchemas.js";
 import { updateStatusContactSchema } from "../schemas/contactsSchemas.js";
-import { contactByIdSchema } from "../schemas/contactsSchemas.js";
 
 export const getAllContacts = async (__, res, next) => {
   try {
@@ -24,10 +23,6 @@ export const getAllContacts = async (__, res, next) => {
 export const getOneContact = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const { error } = contactByIdSchema.validate({id});
-    if (error) {
-      throw HttpError(400, error.message);
-    }
     const contact = await getContactById(id);
     if (contact) {
       res.status(200).json(contact);
@@ -42,10 +37,6 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { error } = contactByIdSchema.validate({id});
-    if (error) {
-      throw HttpError(400, error.message);
-    }
     const contact = await removeContact(id);
     if (!contact) {
       throw HttpError(404);
@@ -75,10 +66,6 @@ export const updateContact = async (req, res, next) => {
       throw HttpError(400, "Body must have at least one field");
     }
     const { id } = req.params;
-    const { e } = contactByIdSchema.validate({ id });
-    if (e) {
-      throw HttpError(400, error.message);
-    }
     const contact = await renovationContact(id, req.body);
 
     if (!contact) {
@@ -100,10 +87,6 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { e } = contactByIdSchema.validate({ id });
-    if (e) {
-      throw HttpError(400, error.message);
-    }
     const { error } = updateStatusContactSchema.validate(req.body);
 
     if (error) {
