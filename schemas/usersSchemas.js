@@ -8,6 +8,10 @@ export const registerUserSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+export const changeSubscriptionSchema = Joi.object({
+  subscription: Joi.string().valid("starter", "pro", "business").required(),
+});
+
 const user = new Schema(
   {
     password: {

@@ -1,4 +1,7 @@
-import { registerUserSchema } from "../schemas/usersSchemas.js";
+import {
+  registerUserSchema,
+  changeSubscriptionSchema,
+} from "../schemas/usersSchemas.js";
 
 import {
   signUpUser,
@@ -69,6 +72,12 @@ export const logout = async (req, res) => {
 };
 
 export const changeSubscriptionUser = async (req, res) => {
+  const { error } = changeSubscriptionSchema.validate(req.body);
+
+  if (error) {
+    throw HttpError(400, error.message);
+  }
+
   const { _id: id } = req.user;
   const { subscription } = req.body;
 
