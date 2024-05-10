@@ -1,27 +1,54 @@
 import { Contact } from "../schemas/contactsSchemas.js";
 
-export async function listContacts() {
-  const data = await Contact.find();
+export async function listContacts(user, skip, limit, favorite) {
+  const { _id: owner } = user;
+
+  if (typeof favorite === "boolean") {
+    const data = await Contact.find(
+      { owner, favorite },
+      "-createAt, -updateAt",
+      {
+        skip,
+        limit,
+      }
+    );
+    return data;
+  };
+
+  const data = await Contact.find({ owner }, "-createAt, -updateAt", {
+    skip,
+    limit,
+  });
   return data;
 }
 
-export function getContactById(contactId) {
-  return Contact.findOne({ _id: contactId });
+export function getContactById(contactId, user) {
+  const { _id: owner } = user;
+  return Contact.findOne({ _id: contactId, owner });
 }
 
-export async function removeContact(contactId) {
-  const data = await Contact.findOneAndDelete({ _id: contactId });
+export async function removeContact(contactId, user) {
+  const { _id: owner } = user;
+
+  const data = await Contact.findOneAndDelete({ _id: contactId, owner });
 
   return data;
 }
 
-export async function addContact(contact) {
+export async function addContact(contact, user) {
+  const { _id: owner } = user;
 
-  const data = Contact.create(contact);
+  const data = Contact.create({ ...contact, owner });
   return data;
 }
 
-export async function renovationContact(id, { name, email, phone, favorite }) {
+export async function renovationContact(
+  id,
+  { name, email, phone, favorite },
+  user
+) {
+  const { _id: owner } = user;
+
   const contact = {};
 
   if (name) {
@@ -42,7 +69,7 @@ export async function renovationContact(id, { name, email, phone, favorite }) {
     return undefined;
   }
 
-  const data = await Contact.findOneAndUpdate({ _id: id }, contact, {
+  const data = await Contact.findOneAndUpdate({ _id: id, owner }, contact, {
     new: true,
     versionKey: false,
   });
@@ -50,9 +77,11 @@ export async function renovationContact(id, { name, email, phone, favorite }) {
   return data;
 }
 
-export async function renovationStatusContact(id, { favorite }) {
+export async function renovationStatusContact(id, { favorite }, user) {
+  const { _id: owner } = user;
+
   const data = await Contact.findOneAndUpdate(
-    { _id: id },
+    { _id: id, owner },
     { favorite },
     {
       new: true,

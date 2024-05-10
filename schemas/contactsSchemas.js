@@ -1,16 +1,18 @@
 import Joi from "joi";
 import { Schema, model } from "mongoose";
 
+export const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
 export const createContactSchema = Joi.object({
   name: Joi.string().required(),
-  email: Joi.string().required(),
+  email: Joi.string().pattern(emailRegexp).required(),
   phone: Joi.string().required(),
   favorite: Joi.boolean(),
 });
 
 export const updateContactSchema = Joi.object({
   name: Joi.string(),
-  email: Joi.string(),
+  email: Joi.string().pattern(emailRegexp),
   phone: Joi.string(),
   favorite: Joi.boolean(),
 });
@@ -26,6 +28,7 @@ const contact = new Schema(
     },
     email: {
       type: String,
+      match: emailRegexp,
     },
     phone: {
       type: String,
@@ -33,6 +36,10 @@ const contact = new Schema(
     favorite: {
       type: Boolean,
       default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
     },
   },
   { versionKey: false, timestamps: true }

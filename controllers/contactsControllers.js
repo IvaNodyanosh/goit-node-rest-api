@@ -11,9 +11,11 @@ import { createContactSchema } from "../schemas/contactsSchemas.js";
 import { updateContactSchema } from "../schemas/contactsSchemas.js";
 import { updateStatusContactSchema } from "../schemas/contactsSchemas.js";
 
-export const getAllContacts = async (__, res, next) => {
+export const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await listContacts();
+    const { page, limit, favorite } = req.params
+    const skip = (page - 1) * limit;
+    const contacts = await listContacts(req.user, skip, limit, favorite);
     res.status(200).json(contacts);
   } catch (error) {
     next(error);
@@ -23,7 +25,7 @@ export const getAllContacts = async (__, res, next) => {
 export const getOneContact = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const contact = await getContactById(id);
+    const contact = await getContactById(id, req.user);
     if (contact) {
       res.status(200).json(contact);
     } else {
@@ -37,7 +39,7 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const contact = await removeContact(id);
+    const contact = await removeContact(id, req.user);
     if (!contact) {
       throw HttpError(404);
     }
@@ -53,7 +55,7 @@ export const createContact = async (req, res, next) => {
     if (error) {
       throw HttpError(400, error.message);
     }
-    const contact = await addContact(req.body);
+    const contact = await addContact(req.body, req.user);
     res.status(201).json(contact);
   } catch (error) {
     next(error);
@@ -66,7 +68,7 @@ export const updateContact = async (req, res, next) => {
       throw HttpError(400, "Body must have at least one field");
     }
     const { id } = req.params;
-    const contact = await renovationContact(id, req.body);
+    const contact = await renovationContact(id, req.body, req.user);
 
     if (!contact) {
       throw HttpError(404);
@@ -93,7 +95,7 @@ export const updateStatusContact = async (req, res, next) => {
       throw HttpError(400, error.message);
     }
 
-    const data = await renovationStatusContact(id, req.body);
+    const data = await renovationStatusContact(id, req.body, req.user);
 
     if (!data) {
       throw HttpError(404);

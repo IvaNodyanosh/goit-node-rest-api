@@ -1,5 +1,6 @@
 import morgan from "morgan";
 import contactsRouter from "./routes/contactsRouter.js";
+import usersRouter from "./routes/usersRouter.js";
 import express from "express";
 import cors from "cors";
 import { mongoose } from "mongoose";
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(morgan("tiny"));
 
 app.use("/api/contacts", contactsRouter);
+app.use("/api/users", usersRouter);
 
 app.use((_, res, __) => {
   res.status(404).json({

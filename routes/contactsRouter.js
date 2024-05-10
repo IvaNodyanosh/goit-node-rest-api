@@ -6,21 +6,27 @@ import {
   deleteContact,
   createContact,
   updateContact,
-  updateStatusContact
+  updateStatusContact,
 } from "../controllers/contactsControllers.js";
+import { authenticate } from "../helpers/authenticate.js";
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", getAllContacts);
+contactsRouter.get("/", authenticate, getAllContacts);
 
-contactsRouter.get("/:id", objectIdValidator, getOneContact);
+contactsRouter.get("/:id", authenticate, objectIdValidator, getOneContact);
 
-contactsRouter.delete("/:id", objectIdValidator, deleteContact);
+contactsRouter.delete("/:id", authenticate, objectIdValidator, deleteContact);
 
-contactsRouter.post("/", createContact);
+contactsRouter.post("/", authenticate, createContact);
 
-contactsRouter.put("/:id", objectIdValidator, updateContact);
+contactsRouter.put("/:id", authenticate, objectIdValidator, updateContact);
 
-contactsRouter.patch("/:id/favorite", objectIdValidator, updateStatusContact);
+contactsRouter.patch(
+  "/:id/favorite",
+  authenticate,
+  objectIdValidator,
+  updateStatusContact
+);
 
 export default contactsRouter;
