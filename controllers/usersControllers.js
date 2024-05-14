@@ -61,11 +61,11 @@ export const getCurrent = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  const { _id: id } = req.user;
+  const { _id } = req.user;
   try {
-    logOutUser(id);
+    const data = await logOutUser(_id);
 
-    res.status(204);
+    res.status(204).json(data);
   } catch (error) {
     next(error);
   }

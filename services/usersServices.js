@@ -47,10 +47,9 @@ export async function signInUser(userInform) {
 }
 
 export async function logOutUser(userId) {
-  return await User.findOneAndUpdate({ _id: userId }, { token: null });
-
+  return await User.findOneAndUpdate({ _id: userId }, { token: "" }, {new: true})
 }
 
 export async function changeSubscription(userId, subscription) {
-  return await User.findOneAndUpdate({_id: userId}, {subscription})
+  return await User.findOneAndUpdate({_id: userId}, {subscription}, {new: true})
 }

@@ -3,7 +3,8 @@ import {
   getCurrent,
   registerUser,
     logInUser,
-  logout
+  logout,
+  changeSubscriptionUser
 } from "../controllers/usersControllers.js";
 import { authenticate } from "../helpers/authenticate.js"
 
@@ -13,6 +14,6 @@ usersRouter.post("/register", registerUser);
 usersRouter.post("/login", logInUser);
 usersRouter.get("/current", authenticate, getCurrent);
 usersRouter.post("/logout", authenticate, logout);
-usersRouter.patch("/", authenticate)
+usersRouter.patch("/", authenticate, changeSubscriptionUser)
 
 export default usersRouter;

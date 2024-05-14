@@ -19,7 +19,7 @@ export const authenticate = async (req, __, next) => {
     const { id } = jsonwebtoken.verify(token, SECRET_KEY);
     const user = await User.findById(id);
 
-    if (!user) {
+    if (!user || !user.token || user.token !== token) {
       next(HttpError(401));
     }
 
