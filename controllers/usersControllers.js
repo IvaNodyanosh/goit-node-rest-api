@@ -8,9 +8,16 @@ import {
   logOutUser,
   signInUser,
   changeSubscription,
+  changeAvatarUser,
 } from "../services/usersServices.js";
 
 import HttpError from "../helpers/HttpError.js";
+
+import fs from "fs/promises";
+
+import path from "path";
+
+import { fileURLToPath } from "url";
 
 export const registerUser = async (req, res, next) => {
   try {
@@ -85,6 +92,25 @@ export const changeSubscriptionUser = async (req, res) => {
     const data = await changeSubscription(id, subscription);
 
     res.status(200).json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changeAvatar = async (req, res, next) => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const { _id } = req.user;
+  console.log(req.file)
+  const { path: temporaryName, originalname } = req.file;
+  const nameFile = `${_id}_${originalname}`;
+  const fileName = path.join(__dirname, "../public/avatars", nameFile);
+  const avatarURL = `/avatars/${nameFile}`
+
+  try {
+    await changeAvatarUser(_id, avatarURL);
+    await fs.rename(temporaryName, fileName);
+    res.status(200).json(avatarURL);
   } catch (error) {
     next(error);
   }

@@ -4,6 +4,7 @@ import HttpError from "../helpers/HttpError.js";
 
 import bcrypt from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
+import gravatar from "gravatar";
 
 import { config } from "dotenv";
 
@@ -15,12 +16,13 @@ export async function signUpUser(userInform) {
   const { email, password } = userInform;
   const user = await User.findOne({ email: userInform.email });
   const hashPassword = await bcrypt.hash(password, 10);
+  const avatarURL = gravatar.url(email);
 
   if (user) {
     throw HttpError(409, "Email in use");
   }
 
-  const data = await User.create({ email, password: hashPassword });
+  const data = await User.create({ email, password: hashPassword, avatarURL });
 
   return data;
 }
@@ -46,10 +48,18 @@ export async function signInUser(userInform) {
   return { token, user };
 }
 
-export async function logOutUser(userId) {
-  return await User.findOneAndUpdate({ _id: userId }, { token: "" }, {new: true})
+export async function logOutUser(id) {
+  return await User.findOneAndUpdate({ _id: id }, { token: "" }, { new: true });
 }
 
-export async function changeSubscription(userId, subscription) {
-  return await User.findOneAndUpdate({_id: userId}, {subscription}, {new: true})
+export async function changeSubscription(id, subscription) {
+  return await User.findOneAndUpdate(
+    { _id: id },
+    { subscription },
+    { new: true }
+  );
+}
+
+export async function changeAvatarUser(id, avatarURL) {
+  return await User.findOneAndUpdate({ _id: id }, { avatarURL }, { new: true });
 }
