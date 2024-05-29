@@ -11,6 +11,8 @@ import {
   changeAvatarUser,
 } from "../services/usersServices.js";
 
+import Jimp from "jimp";
+
 import HttpError from "../helpers/HttpError.js";
 
 import fs from "fs/promises";
@@ -101,16 +103,24 @@ export const changeAvatar = async (req, res, next) => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const { _id } = req.user;
-  console.log(req.file)
+  console.log(req.file);
   const { path: temporaryName, originalname } = req.file;
   const nameFile = `${_id}_${originalname}`;
   const fileName = path.join(__dirname, "../public/avatars", nameFile);
-  const avatarURL = `/avatars/${nameFile}`
+  const avatarURL = `/avatars/${nameFile}`;
 
   try {
     await changeAvatarUser(_id, avatarURL);
-    await fs.rename(temporaryName, fileName);
-    res.status(200).json(avatarURL);
+
+    Jimp.read(temporaryName, (err, img) => {
+      if (err) next(err);
+      img
+        .resize(250, 250) // resize
+        .write(fileName); // save
+    });
+
+    fs.unlink(temporaryName);
+    res.status(200).json({ avatarURL });
   } catch (error) {
     next(error);
   }
