@@ -6,6 +6,8 @@ import {
   logout,
   changeSubscriptionUser,
   changeAvatar,
+  verifyUser,
+  repeatedVerify
 } from "../controllers/usersControllers.js";
 import { authenticate } from "../helpers/authenticate.js";
 import { upload } from "../helpers/uploadImg.js";
@@ -23,5 +25,7 @@ usersRouter.patch(
   upload.single("avatar"),
   changeAvatar
 );
+usersRouter.get("/verify/:verificationToken", verifyUser);
+usersRouter.post("/verify", repeatedVerify)
 
 export default usersRouter;

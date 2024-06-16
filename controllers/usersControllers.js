@@ -1,6 +1,7 @@
 import {
   registerUserSchema,
   changeSubscriptionSchema,
+  emailValidateSchema,
 } from "../schemas/usersSchemas.js";
 
 import {
@@ -9,11 +10,16 @@ import {
   signInUser,
   changeSubscription,
   changeAvatarUser,
+  verifyUserEmail,
+  repeatedVerifyEmail,
 } from "../services/usersServices.js";
 
 import Jimp from "jimp";
 
+import { nanoid } from "nanoid";
+
 import HttpError from "../helpers/HttpError.js";
+import { sendEmails } from "../helpers/sendEmails.js";
 
 import fs from "fs/promises";
 
@@ -22,13 +28,17 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 export const registerUser = async (req, res, next) => {
+  const verificationToken = nanoid();
+
   try {
     const { error } = registerUserSchema.validate(req.body);
 
     if (error) {
       throw HttpError(400, error.message);
     }
-    const data = await signUpUser(req.body);
+    const data = await signUpUser(req.body, verificationToken);
+
+    sendEmails(data.email, verificationToken);
 
     res
       .status(201)
@@ -121,6 +131,47 @@ export const changeAvatar = async (req, res, next) => {
 
     fs.unlink(temporaryName);
     res.status(200).json({ avatarURL });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyUser = async (req, res, next) => {
+  const { verificationToken } = req.params;
+
+  try {
+    const { isError, message } = await verifyUserEmail(verificationToken);
+
+    if (isError) {
+      throw HttpError(404, message);
+    }
+
+    res.status(200).json({
+      message,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const repeatedVerify = async (req, res, next) => {
+  try {
+    const { error } = emailValidateSchema.validate(req.body);
+    const { email } = req.body;
+
+    if (error) {
+      throw HttpError(400, error.message);
+    }
+
+    const { isError, message, token } = await repeatedVerifyEmail(email);
+
+    if (isError) {
+      throw HttpError(404, message);
+    }
+
+    sendEmails(email, token);
+
+    res.status(200).json({message})
   } catch (error) {
     next(error);
   }
